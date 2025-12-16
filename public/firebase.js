@@ -1,0 +1,32 @@
+// firebase.js
+// ES Module style - used by other JS files via type="module"
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.24.0/firebase-app.js";
+import {
+  getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/9.24.0/firebase-auth.js";
+import {
+  getFirestore, collection, addDoc, getDocs, query, where, orderBy, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/9.24.0/firebase-firestore.js";
+import {
+  getStorage, ref as sref, uploadBytes, getDownloadURL
+} from "https://www.gstatic.com/firebasejs/9.24.0/firebase-storage.js";
+
+// ---- PASTE YOUR FIREBASE CONFIG HERE ----
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "PROJECT.firebaseapp.com",
+  projectId: "PROJECT",
+  storageBucket: "PROJECT.appspot.com",
+  messagingSenderId: "SENDER_ID",
+  appId: "APP_ID"
+};
+// ----------------------------------------
+
+const app = initializeApp(firebaseConfig);
+
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+export { auth, provider, signInWithPopup, signOut, onAuthStateChanged, db, collection, addDoc, getDocs, query, where, orderBy, serverTimestamp, sref, uploadBytes, getDownloadURL };

@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Report Item — Smart Lost & Found</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header><h2>Report Lost / Found Item</h2></header>
+
+      <form id="itemForm">
+        <input id="item_name" type="text" placeholder="Item name (e.g. Black USB drive)" required />
+        <textarea id="description" placeholder="Description (stickers, color, brand)"></textarea>
+
+        <select id="category">
+          <option>Electronics</option>
+          <option>ID Card</option>
+          <option>Notebook</option>
+          <option>Accessory</option>
+          <option>Other</option>
+        </select>
+
+        <select id="item_type">
+          <option value="lost">Lost</option>
+          <option value="found">Found</option>
+        </select>
+
+        <input id="location" type="text" placeholder="Location (e.g. Library bench B3)" required />
+        <input id="image" type="file" accept="image/*" required />
+
+        <button class="btn" type="submit">Submit</button>
+      </form>
+
+      <div id="status"></div>
+      <p><a href="index.html" class="btn">Home</a></p>
+    </div>
+
+    <!-- <script type="module" src="add_item.js"></script> -->
+     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script src="firebase.js"></script>
+<script src="add_item.js"></script>
+
+  </body>
+</html>

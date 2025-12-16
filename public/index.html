@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Smart Lost & Found — Campus</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Smart Lost & Found</h1>
+        <div id="authArea">
+          <button id="loginBtn" class="btn">Sign in with Google</button>
+          <button id="logoutBtn" class="btn" style="display:none">Sign out</button>
+          <span id="userInfo"></span>
+        </div>
+      </header>
+
+      <nav class="actions">
+        <a href="add_item.html" class="btn">Report Lost / Found Item</a>
+        <a href="view_items.html" class="btn">View Found Items</a>
+      </nav>
+
+      <main>
+        <section class="search-area">
+          <h2>Search & Suggested Matches</h2>
+          <textarea id="searchTxt" placeholder="Describe what you lost..."></textarea>
+          <button id="searchBtn" class="btn">Find Matches</button>
+          <div id="results" class="results"></div>
+        </section>
+      </main>
+    </div>
+
+    <!-- <script type="module" src="app.js"></script> -->
+
+    <!-- Firebase SDKs (COMPAT version) -->
+<!-- Firebase core -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+
+<!-- Firebase Auth -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+<!-- Your app -->
+<script src="app.js"></script>
+
+
+
+  </body>
+</html>
+
+
+<!-- <!DOCTYPE html>
+<html>
+<head>
+  <title>Test</title>
+</head>
+<body>
+  <h1>It Works!</h1>
+  <p>If you see this, Firebase Hosting is fine.</p>
+</body>
+</html> -->
