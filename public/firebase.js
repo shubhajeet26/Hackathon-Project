@@ -12,15 +12,24 @@ import {
 } from "https://www.gstatic.com/firebasejs/9.24.0/firebase-storage.js";
 
 // ---- PASTE YOUR FIREBASE CONFIG HERE ----
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "PROJECT.firebaseapp.com",
-  projectId: "PROJECT",
-  storageBucket: "PROJECT.appspot.com",
-  messagingSenderId: "SENDER_ID",
-  appId: "APP_ID"
-};
+// const firebaseConfig = {
+//   apiKey: "YOUR_API_KEY",
+//   authDomain: "PROJECT.firebaseapp.com",
+//   projectId: "PROJECT",
+//   storageBucket: "PROJECT.appspot.com",
+//   messagingSenderId: "SENDER_ID",
+//   appId: "APP_ID"
+// };
 // ----------------------------------------
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBHqbuwOBlJBix9SgLFqYSLqFlXs7Uqup8",
+  authDomain: "lost-and-found-17d0e.firebaseapp.com",
+  projectId: "lost-and-found-17d0e",
+  storageBucket: "lost-and-found-17d0e.firebasestorage.app",
+  messagingSenderId: "746918449748",
+  appId: "1:746918449748:web:6de9b7b1a1a68ae91f13c1"
+};
 
 const app = initializeApp(firebaseConfig);
 
