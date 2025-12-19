@@ -1,4 +1,4 @@
-<!doctype html>
+<!-- <!doctype html>
 <html>
   <head>
     <meta charset="utf-8" />
@@ -37,5 +37,295 @@
 
     <script src="app.js"></script>
 
+  </body>
+</html> -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- In the below code i have added the VIEW LOST page -->
+
+
+
+
+
+<!-- <!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Smart Lost & Found — Campus</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2>Smart Lost & Found</h2>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <span id="userEmail" style="font-size: 0.8rem; color: #666;"></span>
+                <button id="authBtn" class="btn" style="padding: 5px 15px; font-size: 0.9rem;">Sign In</button>
+            </div>
+        </div>
+      </header>
+
+      <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 30px;">
+          <a href="add_item.html" class="btn">Report Lost / Found Item</a>
+          <a href="view_items.html" class="btn" style="background-color: #2563eb;">View Found Items</a>
+          <a href="view_lost.html" class="btn" style="background-color: #c53030;">View Lost Items</a>
+      </div>
+
+      <h3>Search & Suggested Matches</h3>
+      <textarea id="searchQuery" placeholder="Describe what you lost..." style="width: 100%; height: 80px; margin-bottom: 10px;"></textarea>
+      <button id="searchBtn" class="btn">Find Matches</button>
+      
+      <div id="resultsArea" style="margin-top: 20px;"></div>
+
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+        // Import Firestore for Search
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBHqbuwOBlJBix9SgLFqYSLqFlXs7Uqup8",
+            authDomain: "lost-and-found-17d0e.firebaseapp.com",
+            projectId: "lost-and-found-17d0e",
+            messagingSenderId: "746918449748",
+            appId: "1:746918449748:web:6de9b7b1a1a68ae91f13c1"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
+
+        const authBtn = document.getElementById('authBtn');
+        const userEmailSpan = document.getElementById('userEmail');
+
+        // AUTH LOGIC
+        let currentUser = null;
+
+        authBtn.addEventListener('click', () => {
+            if (currentUser) {
+                signOut(auth);
+            } else {
+                signInWithPopup(auth, provider);
+            }
+        });
+
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            if (user) {
+                userEmailSpan.textContent = `Signed in as ${user.displayName}`;
+                authBtn.textContent = "Sign out";
+                authBtn.style.backgroundColor = "#4b5563";
+            } else {
+                userEmailSpan.textContent = "";
+                authBtn.textContent = "Sign In";
+                authBtn.style.backgroundColor = "#2563eb";
+            }
+        });
+
+        // SEARCH LOGIC
+        document.getElementById('searchBtn').addEventListener('click', async () => {
+            const queryText = document.getElementById('searchQuery').value.toLowerCase();
+            const resultsDiv = document.getElementById('resultsArea');
+            
+            if (!queryText) return alert("Please type something to search!");
+
+            resultsDiv.innerHTML = "Searching...";
+
+            // Simple client-side search (Fetch all, filter locally)
+            // Note: For a real huge app, we'd use Algolia or server-side search.
+            const querySnapshot = await getDocs(collection(db, "items"));
+            
+            resultsDiv.innerHTML = "";
+            let foundCount = 0;
+
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                const text = (data.item_name + " " + data.description + " " + data.category).toLowerCase();
+                
+                if (text.includes(queryText)) {
+                    foundCount++;
+                    const itemDiv = document.createElement('div');
+                    itemDiv.style.border = "1px solid #ddd";
+                    itemDiv.style.padding = "10px";
+                    itemDiv.style.marginBottom = "10px";
+                    itemDiv.style.borderRadius = "8px";
+                    itemDiv.style.background = "white";
+                    itemDiv.innerHTML = `
+                        <strong>${data.item_name}</strong> (${data.category})<br>
+                        <small>${data.description}</small><br>
+                        <span style="color: ${data.type === 'lost' ? 'red' : 'green'}; font-weight: bold;">
+                            ${data.type.toUpperCase()}
+                        </span> at ${data.location}
+                    `;
+                    resultsDiv.appendChild(itemDiv);
+                }
+            });
+
+            if (foundCount === 0) {
+                resultsDiv.innerHTML = "<p>No matches found.</p>";
+            }
+        });
+
+    </script>
+  </body>
+</html> -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Smart Lost & Found — Campus</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div class="container">
+      
+      <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee;">
+        <h2 style="margin: 0; font-size: 1.5rem; color: #111;">Smart Lost & Found</h2>
+        
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <span id="userEmail" style="font-size: 0.9rem; color: #555; font-weight: 500;"></span>
+            <button id="authBtn" class="btn" style="margin: 0; padding: 8px 16px; font-size: 0.85rem; height: auto;">Sign In</button>
+        </div>
+      </header>
+
+      <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 30px;">
+          <a href="add_item.html" class="btn">Report Lost / Found Item</a>
+          <a href="view_items.html" class="btn" style="background-color: #2563eb;">View Found Items</a>
+          <a href="view_lost.html" class="btn" style="background-color: #c53030;">View Lost Items</a>
+      </div>
+
+      <h3>Search & Suggested Matches</h3>
+      <textarea id="searchQuery" placeholder="Describe what you lost..." style="width: 100%; height: 80px; margin-bottom: 10px;"></textarea>
+      <button id="searchBtn" class="btn">Find Matches</button>
+      
+      <div id="resultsArea" style="margin-top: 20px;"></div>
+
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBHqbuwOBlJBix9SgLFqYSLqFlXs7Uqup8",
+            authDomain: "lost-and-found-17d0e.firebaseapp.com",
+            projectId: "lost-and-found-17d0e",
+            messagingSenderId: "746918449748",
+            appId: "1:746918449748:web:6de9b7b1a1a68ae91f13c1"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
+
+        const authBtn = document.getElementById('authBtn');
+        const userEmailSpan = document.getElementById('userEmail');
+
+        // AUTH LOGIC
+        let currentUser = null;
+
+        authBtn.addEventListener('click', () => {
+            if (currentUser) {
+                signOut(auth);
+            } else {
+                signInWithPopup(auth, provider);
+            }
+        });
+
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            if (user) {
+                // Shorten name if it's too long
+                const name = user.displayName.length > 20 ? user.displayName.substring(0, 18) + "..." : user.displayName;
+                userEmailSpan.textContent = `Signed in as ${name}`;
+                authBtn.textContent = "Sign out";
+                authBtn.style.backgroundColor = "#4b5563";
+            } else {
+                userEmailSpan.textContent = "";
+                authBtn.textContent = "Sign In";
+                authBtn.style.backgroundColor = "#2563eb";
+            }
+        });
+
+        // SEARCH LOGIC
+        document.getElementById('searchBtn').addEventListener('click', async () => {
+            const queryText = document.getElementById('searchQuery').value.toLowerCase();
+            const resultsDiv = document.getElementById('resultsArea');
+            
+            if (!queryText) return alert("Please type something to search!");
+
+            resultsDiv.innerHTML = "Searching...";
+
+            const querySnapshot = await getDocs(collection(db, "items"));
+            
+            resultsDiv.innerHTML = "";
+            let foundCount = 0;
+
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                const text = (data.item_name + " " + data.description + " " + data.category).toLowerCase();
+                
+                if (text.includes(queryText)) {
+                    foundCount++;
+                    const itemDiv = document.createElement('div');
+                    itemDiv.style.border = "1px solid #ddd";
+                    itemDiv.style.padding = "15px";
+                    itemDiv.style.marginBottom = "10px";
+                    itemDiv.style.borderRadius = "8px";
+                    itemDiv.style.background = "white";
+                    itemDiv.innerHTML = `
+                        <strong>${data.item_name}</strong> (${data.category})<br>
+                        <small style="color: #666;">${data.description}</small><br>
+                        <div style="margin-top: 5px;">
+                            <span style="color: ${data.type === 'lost' ? '#c53030' : '#03543f'}; font-weight: bold; background: ${data.type === 'lost' ? '#fde8e8' : '#def7ec'}; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem;">
+                                ${data.type.toUpperCase()}
+                            </span> 
+                            <span style="font-size: 0.9rem; margin-left: 5px;">at ${data.location}</span>
+                        </div>
+                    `;
+                    resultsDiv.appendChild(itemDiv);
+                }
+            });
+
+            if (foundCount === 0) {
+                resultsDiv.innerHTML = "<p>No matches found.</p>";
+            }
+        });
+    </script>
   </body>
 </html>

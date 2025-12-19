@@ -1,0 +1,262 @@
+<!-- <!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Lost Items — Smart Lost & Found</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+      /* Simple Card Style */
+      .item-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      }
+      .item-img {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 8px;
+        background: #f3f4f6;
+      }
+      .item-info h3 { margin: 0 0 5px 0; color: #1f2937; }
+      .item-info p { margin: 0; color: #6b7280; font-size: 0.9rem; }
+      .tag {
+        background: #fde8e8; color: #9b1c1c; /* RED for Lost items */
+        padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600;
+        display: inline-block; margin-bottom: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h2 style="color: #c53030;">Recent Lost Reports</h2>
+        <p style="color: #666;">Help these people find their items!</p>
+      </header>
+
+      <div id="loading" style="text-align: center; color: #666; margin-top: 20px;">Loading lost items...</div>
+      <div id="itemsList"></div>
+
+      <p><a href="index.html" class="btn" style="background-color: var(--text-muted); margin-top: 20px;">Back to Home</a></p>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getFirestore, collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBHqbuwOBlJBix9SgLFqYSLqFlXs7Uqup8",
+            authDomain: "lost-and-found-17d0e.firebaseapp.com",
+            projectId: "lost-and-found-17d0e",
+            messagingSenderId: "746918449748",
+            appId: "1:746918449748:web:6de9b7b1a1a68ae91f13c1"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        async function loadItems() {
+            const listDiv = document.getElementById('itemsList');
+            const loadingDiv = document.getElementById('loading');
+
+            try {
+                // QUERY: Show items where type == "lost"
+                const q = query(
+                    collection(db, "items"), 
+                    where("type", "==", "lost"), 
+                    orderBy("timestamp", "desc")
+                );
+
+                const querySnapshot = await getDocs(q);
+                loadingDiv.style.display = 'none';
+
+                if (querySnapshot.empty) {
+                    listDiv.innerHTML = '<p style="text-align:center; color:#888;">No lost items reported (Good news!).</p>';
+                    return;
+                }
+
+                listDiv.innerHTML = '';
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'item-card';
+                    itemDiv.innerHTML = `
+                        <img src="${data.imageURL}" class="item-img" alt="Item Image" onerror="this.src='https://placehold.co/100?text=No+Img'">
+                        <div class="item-info">
+                            <span class="tag">LOST</span>
+                            <h3>${data.item_name}</h3>
+                            <p><strong>Where:</strong> ${data.location}</p>
+                            <p><strong>Desc:</strong> ${data.description}</p>
+                        </div>
+                    `;
+                    listDiv.appendChild(itemDiv);
+                });
+
+            } catch (error) {
+                console.error(error);
+                loadingDiv.innerText = "Error loading items. Check console.";
+            }
+        }
+
+        loadItems();
+    </script>
+  </body>
+</html> -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Adding Contact Info Code -->
+
+
+
+
+
+
+
+
+
+
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Lost Items — Smart Lost & Found</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+      /* Simple Card Style */
+      .item-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      }
+      .item-img {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 8px;
+        background: #f3f4f6;
+      }
+      .item-info h3 { margin: 0 0 5px 0; color: #1f2937; }
+      .item-info p { margin: 0; color: #6b7280; font-size: 0.9rem; }
+      .tag {
+        background: #fde8e8; color: #9b1c1c; /* RED for Lost items */
+        padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600;
+        display: inline-block; margin-bottom: 5px;
+      }
+      .contact-text {
+        color: #c53030;
+        font-weight: 600;
+        margin-top: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h2 style="color: #c53030;">Recent Lost Reports</h2>
+        <p style="color: #666;">Help these people find their items!</p>
+      </header>
+
+      <div id="loading" style="text-align: center; color: #666; margin-top: 20px;">Loading lost items...</div>
+      <div id="itemsList"></div>
+
+      <p><a href="index.html" class="btn" style="background-color: var(--text-muted); margin-top: 20px;">Back to Home</a></p>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getFirestore, collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBHqbuwOBlJBix9SgLFqYSLqFlXs7Uqup8",
+            authDomain: "lost-and-found-17d0e.firebaseapp.com",
+            projectId: "lost-and-found-17d0e",
+            messagingSenderId: "746918449748",
+            appId: "1:746918449748:web:6de9b7b1a1a68ae91f13c1"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        async function loadItems() {
+            const listDiv = document.getElementById('itemsList');
+            const loadingDiv = document.getElementById('loading');
+
+            try {
+                // QUERY: Show items where type == "lost"
+                const q = query(
+                    collection(db, "items"), 
+                    where("type", "==", "lost"), 
+                    orderBy("timestamp", "desc")
+                );
+
+                const querySnapshot = await getDocs(q);
+                loadingDiv.style.display = 'none';
+
+                if (querySnapshot.empty) {
+                    listDiv.innerHTML = '<p style="text-align:center; color:#888;">No lost items reported (Good news!).</p>';
+                    return;
+                }
+
+                listDiv.innerHTML = '';
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'item-card';
+                    
+                    // Display contact (or N/A for old items)
+                    const contact = data.contact_info || "Not Provided";
+
+                    itemDiv.innerHTML = `
+                        <img src="${data.imageURL}" class="item-img" alt="Item Image" onerror="this.src='https://placehold.co/100?text=No+Img'">
+                        <div class="item-info">
+                            <span class="tag">LOST</span>
+                            <h3>${data.item_name}</h3>
+                            <p><strong>Where:</strong> ${data.location}</p>
+                            <p><strong>Desc:</strong> ${data.description}</p>
+                            <p class="contact-text">📞 Contact: ${contact}</p>
+                        </div>
+                    `;
+                    listDiv.appendChild(itemDiv);
+                });
+
+            } catch (error) {
+                console.error(error);
+                loadingDiv.innerText = "Error loading items. Check console.";
+            }
+        }
+
+        loadItems();
+    </script>
+  </body>
+</html>
