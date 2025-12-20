@@ -8,209 +8,6 @@
   </head>
   <body>
     <div class="container">
-      <header>
-        <h1>Smart Lost & Found</h1>
-        <div id="authArea">
-          <button id="loginBtn" class="btn">Sign in with Google</button>
-          <button id="logoutBtn" class="btn" style="display:none">Sign out</button>
-          <span id="userInfo"></span>
-        </div>
-      </header>
-
-      <nav class="actions">
-        <a href="add_item.html" class="btn">Report Lost / Found Item</a>
-        <a href="view_items.html" class="btn">View Found Items</a>
-      </nav>
-
-      <main>
-        <section class="search-area">
-          <h2>Search & Suggested Matches</h2>
-          <textarea id="searchTxt" placeholder="Describe what you lost..."></textarea>
-          <button id="searchBtn" class="btn">Find Matches</button>
-          <div id="results" class="results"></div>
-        </section>
-      </main>
-    </div>
-
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-
-    <script src="app.js"></script>
-
-  </body>
-</html> -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!-- In the below code i have added the VIEW LOST page -->
-
-
-
-
-
-<!-- <!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <title>Smart Lost & Found — Campus</title>
-    <link rel="stylesheet" href="styles.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  </head>
-  <body>
-    <div class="container">
-      <header>
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h2>Smart Lost & Found</h2>
-            <div style="display: flex; gap: 10px; align-items: center;">
-                <span id="userEmail" style="font-size: 0.8rem; color: #666;"></span>
-                <button id="authBtn" class="btn" style="padding: 5px 15px; font-size: 0.9rem;">Sign In</button>
-            </div>
-        </div>
-      </header>
-
-      <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 30px;">
-          <a href="add_item.html" class="btn">Report Lost / Found Item</a>
-          <a href="view_items.html" class="btn" style="background-color: #2563eb;">View Found Items</a>
-          <a href="view_lost.html" class="btn" style="background-color: #c53030;">View Lost Items</a>
-      </div>
-
-      <h3>Search & Suggested Matches</h3>
-      <textarea id="searchQuery" placeholder="Describe what you lost..." style="width: 100%; height: 80px; margin-bottom: 10px;"></textarea>
-      <button id="searchBtn" class="btn">Find Matches</button>
-      
-      <div id="resultsArea" style="margin-top: 20px;"></div>
-
-    </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-        // Import Firestore for Search
-        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyBHqbuwOBlJBix9SgLFqYSLqFlXs7Uqup8",
-            authDomain: "lost-and-found-17d0e.firebaseapp.com",
-            projectId: "lost-and-found-17d0e",
-            messagingSenderId: "746918449748",
-            appId: "1:746918449748:web:6de9b7b1a1a68ae91f13c1"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const provider = new GoogleAuthProvider();
-
-        const authBtn = document.getElementById('authBtn');
-        const userEmailSpan = document.getElementById('userEmail');
-
-        // AUTH LOGIC
-        let currentUser = null;
-
-        authBtn.addEventListener('click', () => {
-            if (currentUser) {
-                signOut(auth);
-            } else {
-                signInWithPopup(auth, provider);
-            }
-        });
-
-        onAuthStateChanged(auth, (user) => {
-            currentUser = user;
-            if (user) {
-                userEmailSpan.textContent = `Signed in as ${user.displayName}`;
-                authBtn.textContent = "Sign out";
-                authBtn.style.backgroundColor = "#4b5563";
-            } else {
-                userEmailSpan.textContent = "";
-                authBtn.textContent = "Sign In";
-                authBtn.style.backgroundColor = "#2563eb";
-            }
-        });
-
-        // SEARCH LOGIC
-        document.getElementById('searchBtn').addEventListener('click', async () => {
-            const queryText = document.getElementById('searchQuery').value.toLowerCase();
-            const resultsDiv = document.getElementById('resultsArea');
-            
-            if (!queryText) return alert("Please type something to search!");
-
-            resultsDiv.innerHTML = "Searching...";
-
-            // Simple client-side search (Fetch all, filter locally)
-            // Note: For a real huge app, we'd use Algolia or server-side search.
-            const querySnapshot = await getDocs(collection(db, "items"));
-            
-            resultsDiv.innerHTML = "";
-            let foundCount = 0;
-
-            querySnapshot.forEach((doc) => {
-                const data = doc.data();
-                const text = (data.item_name + " " + data.description + " " + data.category).toLowerCase();
-                
-                if (text.includes(queryText)) {
-                    foundCount++;
-                    const itemDiv = document.createElement('div');
-                    itemDiv.style.border = "1px solid #ddd";
-                    itemDiv.style.padding = "10px";
-                    itemDiv.style.marginBottom = "10px";
-                    itemDiv.style.borderRadius = "8px";
-                    itemDiv.style.background = "white";
-                    itemDiv.innerHTML = `
-                        <strong>${data.item_name}</strong> (${data.category})<br>
-                        <small>${data.description}</small><br>
-                        <span style="color: ${data.type === 'lost' ? 'red' : 'green'}; font-weight: bold;">
-                            ${data.type.toUpperCase()}
-                        </span> at ${data.location}
-                    `;
-                    resultsDiv.appendChild(itemDiv);
-                }
-            });
-
-            if (foundCount === 0) {
-                resultsDiv.innerHTML = "<p>No matches found.</p>";
-            }
-        });
-
-    </script>
-  </body>
-</html> -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <title>Smart Lost & Found — Campus</title>
-    <link rel="stylesheet" href="styles.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  </head>
-  <body>
-    <div class="container">
       
       <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee;">
         <h2 style="margin: 0; font-size: 1.5rem; color: #111;">Smart Lost & Found</h2>
@@ -326,6 +123,238 @@
                 resultsDiv.innerHTML = "<p>No matches found.</p>";
             }
         });
+    </script>
+  </body>
+</html> -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Code for designing -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- <!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Smart Lost & Found</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    
+    <div class="container">
+      <div class="home-card">
+        
+        <h1 class="hero-title">Find what belongs <br> to you.</h1>
+        <p class="hero-subtitle">The smartest, fastest way to report lost items and reconnect with your belongings on campus.</p>
+
+        <div class="home-search-box">
+            <input type="text" id="homeSearchInput" placeholder="🔍 Search for lost items..." style="margin-bottom: 0;">
+            <button id="homeSearchBtn" class="btn">Search</button>
+        </div>
+
+        <div class="hero-buttons" style="display: flex; flex-direction: column; gap: 15px; width: 100%; max-width: 400px;">
+            <a href="add_item.html" class="btn" style="padding: 18px; font-size: 1.1rem; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);">
+                ➕ Report Lost/Found Item
+            </a>
+            
+            <a href="view_items.html" class="btn" style="background-color: white; color: var(--primary); border: 2px solid var(--border);">
+                🔍 View Found Items
+            </a>
+            
+            <a href="view_lost.html" class="btn" style="background-color: white; color: var(--danger); border: 2px solid var(--border);">
+                📢 View Lost Reports
+            </a>
+        </div>
+
+        <div style="margin-top: 50px; color: var(--text-muted); font-size: 0.85rem; border-top: 1px solid var(--border); padding-top: 20px; width: 100%;">
+            <p>© 2025 Smart Campus Initiative. Secure & Fast.</p>
+        </div>
+
+      </div>
+    </div>
+
+    <script>
+        const searchInput = document.getElementById('homeSearchInput');
+        const searchBtn = document.getElementById('homeSearchBtn');
+
+        function performSearch() {
+            const query = searchInput.value.trim();
+            if (query) {
+                window.location.href = `view_items.html?search=${encodeURIComponent(query)}`;
+            }
+        }
+
+        if(searchBtn) searchBtn.addEventListener('click', performSearch);
+        if(searchInput) {
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') performSearch();
+            });
+        }
+    </script>
+  </body>
+</html> -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Smart Lost & Found</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    
+    <div class="container">
+      
+      <nav class="navbar">
+        <a href="index.html" class="nav-brand">
+            <span style="font-size: 1.5rem;">🔍</span> SmartFound
+        </a>
+        <div class="auth-buttons">
+            <div id="userInfo" class="user-profile" style="display: none;">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <span id="userName">User</span>
+                <button id="signOutBtn" class="btn" style="padding: 5px 12px; font-size: 0.8rem; background: #e2e8f0; color: #333;">Sign Out</button>
+            </div>
+            <button id="signInBtn" class="btn" style="padding: 8px 16px; font-size: 0.9rem;">G Sign In</button>
+        </div>
+      </nav>
+
+      <div class="home-card">
+        <h1 class="hero-title">Find what belongs <br> to you.</h1>
+        <p class="hero-subtitle">The smartest, fastest way to report lost items and reconnect with your belongings on campus.</p>
+
+        <div class="home-search-box">
+            <input type="text" id="homeSearchInput" placeholder="🔍 Search for lost items..." style="margin-bottom: 0;">
+            <button id="homeSearchBtn" class="btn">Search</button>
+        </div>
+
+        <div class="hero-buttons" style="display: flex; flex-direction: column; gap: 15px; width: 100%; max-width: 400px;">
+            <a href="add_item.html" class="btn" style="padding: 18px; font-size: 1.1rem; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);">
+                ➕ Report Lost/Found Item
+            </a>
+            <a href="view_items.html" class="btn" style="background-color: white; color: var(--primary); border: 2px solid var(--border);">
+                🔍 View Found Items
+            </a>
+            <a href="view_lost.html" class="btn" style="background-color: white; color: var(--danger); border: 2px solid var(--border);">
+                📢 View Lost Reports
+            </a>
+        </div>
+
+        <div style="margin-top: 50px; color: var(--text-muted); font-size: 0.85rem; border-top: 1px solid var(--border); padding-top: 20px; width: 100%;">
+            <p>© 2025 Smart Campus Initiative. Secure & Fast.</p>
+        </div>
+
+      </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBHqbuwOBlJBix9SgLFqYSLqFlXs7Uqup8",
+            authDomain: "lost-and-found-17d0e.firebaseapp.com",
+            projectId: "lost-and-found-17d0e",
+            messagingSenderId: "746918449748",
+            appId: "1:746918449748:web:6de9b7b1a1a68ae91f13c1"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        const signInBtn = document.getElementById('signInBtn');
+        const signOutBtn = document.getElementById('signOutBtn');
+        const userInfo = document.getElementById('userInfo');
+        const userNameSpan = document.getElementById('userName');
+        const userAvatar = document.getElementById('userAvatar');
+
+        // Sign In
+        signInBtn.addEventListener('click', () => {
+            signInWithPopup(auth, provider).catch(err => console.error(err));
+        });
+
+        // Sign Out
+        signOutBtn.addEventListener('click', () => {
+            signOut(auth).then(() => alert("Signed out!")).catch(err => console.error(err));
+        });
+
+        // Auth State
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                signInBtn.style.display = 'none';
+                userInfo.style.display = 'flex';
+                userNameSpan.textContent = user.displayName;
+                if(user.displayName) userAvatar.textContent = user.displayName.charAt(0).toUpperCase();
+            } else {
+                signInBtn.style.display = 'block';
+                userInfo.style.display = 'none';
+            }
+        });
+
+        // Search Redirect
+        const searchInput = document.getElementById('homeSearchInput');
+        const searchBtn = document.getElementById('homeSearchBtn');
+        function performSearch() {
+            const query = searchInput.value.trim();
+            if (query) window.location.href = `view_items.html?search=${encodeURIComponent(query)}`;
+        }
+        if(searchBtn) searchBtn.addEventListener('click', performSearch);
+        if(searchInput) searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') performSearch(); });
     </script>
   </body>
 </html>

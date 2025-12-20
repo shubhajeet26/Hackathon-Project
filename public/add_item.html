@@ -1,324 +1,3 @@
-<!-- <!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <title>Report Item — Smart Lost & Found</title>
-    <link rel="stylesheet" href="styles.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  </head>
-  <body>
-    <div class="container">
-      <header><h2>Report Lost / Found Item</h2></header>
-
-      <div id="statusLog" style="display:none; padding: 15px; margin-bottom: 20px; border-radius: 8px; font-weight: bold; text-align: center; border: 2px solid transparent;"></div>
-
-      <form id="itemForm">
-        <input id="item_name" type="text" placeholder="Item name (e.g. Black USB drive)" required />
-        <textarea id="description" placeholder="Description (stickers, color, brand)"></textarea>
-
-        <select id="category">
-          <option>Electronics</option>
-          <option>ID Card</option>
-          <option>Notebook</option>
-          <option>Accessory</option>
-          <option>Other</option>
-        </select>
-
-        <div style="margin-bottom: 20px; background: #f9fafb; padding: 10px; border-radius: 8px; border: 1px solid #e5e7eb;">
-            <label style="font-weight: 600; display: block; margin-bottom: 8px;">Type of Report (Crucial!):</label>
-            <select id="item_type" style="margin-bottom: 0; border: 2px solid #2563eb;">
-                <option value="found">Found Item (I found something)</option>
-                <option value="lost">Lost Item (I lost something)</option>
-            </select>
-        </div>
-
-        <input id="location" type="text" placeholder="Location (e.g. Library bench B3)" required />
-        
-        <label style="font-weight: 600; display: block; margin-bottom: 5px;">Upload Image:</label>
-        <input id="image" type="file" accept="image/*" />
-
-        <button class="btn" type="submit" id="submitBtn">Submit Report</button>
-      </form>
-
-      <p><a href="index.html" class="btn" style="background-color: var(--text-muted);">Back to Home</a></p>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyBHqbuwOBlJBix9SgLFqYSLqFlXs7Uqup8",
-            authDomain: "lost-and-found-17d0e.firebaseapp.com",
-            projectId: "lost-and-found-17d0e",
-            messagingSenderId: "746918449748",
-            appId: "1:746918449748:web:6de9b7b1a1a68ae91f13c1"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        const statusDiv = document.getElementById('statusLog');
-        const submitBtn = document.getElementById('submitBtn');
-        const itemForm = document.getElementById('itemForm');
-        let currentUser = null;
-
-        function showStatus(msg, type) {
-            statusDiv.style.display = 'block';
-            statusDiv.textContent = msg;
-            if(type === 'error') {
-                statusDiv.style.backgroundColor = '#fde8e8';
-                statusDiv.style.color = '#c53030';
-            } else if (type === 'success') {
-                statusDiv.style.backgroundColor = '#def7ec';
-                statusDiv.style.color = '#03543f';
-            } else {
-                statusDiv.style.backgroundColor = '#e1effe';
-                statusDiv.style.color = '#1e429f';
-            }
-        }
-
-        onAuthStateChanged(auth, user => {
-            if (user) {
-                currentUser = user;
-            } else {
-                showStatus("⚠️ Please Sign In First", "error");
-                submitBtn.disabled = true;
-            }
-        });
-
-        itemForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            if (!currentUser) return showStatus("You must be signed in!", "error");
-
-            try {
-                submitBtn.disabled = true;
-                submitBtn.innerText = "Processing...";
-                showStatus("Saving to database...", "loading");
-
-                const category = document.getElementById('category').value;
-                // Using placeholder to ensure 100% success rate during demo
-                const safeImageURL = `https://placehold.co/600x400/2563eb/white?text=${category}+Item`;
-
-                await addDoc(collection(db, "items"), {
-                    item_name: document.getElementById('item_name').value,
-                    description: document.getElementById('description').value,
-                    category: category,
-                    type: document.getElementById('item_type').value,
-                    location: document.getElementById('location').value,
-                    imageURL: safeImageURL, 
-                    owner: currentUser.uid,
-                    timestamp: serverTimestamp()
-                });
-
-                // --- SUCCESS STATE ---
-                showStatus("✅ Saved!", "success");
-                
-                // 1. Clear the form
-                itemForm.reset();
-                
-                // 2. Reset the button
-                submitBtn.disabled = false;
-                submitBtn.innerText = "Submit Report";
-
-                // 3. NO REDIRECT (User stays here)
-
-            } catch (err) {
-                console.error(err);
-                showStatus("Error: " + err.message, "error");
-                submitBtn.disabled = false;
-                submitBtn.innerText = "Try Again";
-            }
-        });
-    </script>
-  </body>
-</html> -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!-- <!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <title>Report Item — Smart Lost & Found</title>
-    <link rel="stylesheet" href="styles.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  </head>
-  <body>
-    <div class="container">
-      <header><h2>Report Lost / Found Item</h2></header>
-
-      <div id="statusLog" style="display:none; padding: 15px; margin-bottom: 20px; border-radius: 8px; font-weight: bold; text-align: center; border: 2px solid transparent;"></div>
-
-      <form id="itemForm">
-        <input id="item_name" type="text" placeholder="Item name (e.g. Black USB drive)" required />
-        <textarea id="description" placeholder="Description (stickers, color, brand)"></textarea>
-
-        <select id="category">
-          <option>Electronics</option>
-          <option>ID Card</option>
-          <option>Notebook</option>
-          <option>Accessory</option>
-          <option>Other</option>
-        </select>
-
-        <div style="margin-bottom: 20px; background: #f9fafb; padding: 10px; border-radius: 8px; border: 1px solid #e5e7eb;">
-            <label style="font-weight: 600; display: block; margin-bottom: 8px;">Type of Report (Crucial!):</label>
-            <select id="item_type" style="margin-bottom: 0; border: 2px solid #2563eb;">
-                <option value="found">Found Item (I found something)</option>
-                <option value="lost">Lost Item (I lost something)</option>
-            </select>
-        </div>
-
-        <input id="location" type="text" placeholder="Location (e.g. Library bench B3)" required />
-        
-        <label style="font-weight: 600; display: block; margin-bottom: 5px;">Upload Image:</label>
-        <input id="image" type="file" accept="image/*" required />
-
-        <button class="btn" type="submit" id="submitBtn">Submit Report</button>
-      </form>
-
-      <p><a href="index.html" class="btn" style="background-color: var(--text-muted);">Back to Home</a></p>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyBHqbuwOBlJBix9SgLFqYSLqFlXs7Uqup8",
-            authDomain: "lost-and-found-17d0e.firebaseapp.com",
-            projectId: "lost-and-found-17d0e",
-            messagingSenderId: "746918449748",
-            appId: "1:746918449748:web:6de9b7b1a1a68ae91f13c1"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        const statusDiv = document.getElementById('statusLog');
-        const submitBtn = document.getElementById('submitBtn');
-        const itemForm = document.getElementById('itemForm');
-        let currentUser = null;
-
-        function showStatus(msg, type) {
-            statusDiv.style.display = 'block';
-            statusDiv.textContent = msg;
-            if(type === 'error') {
-                statusDiv.style.backgroundColor = '#fde8e8';
-                statusDiv.style.color = '#c53030';
-            } else if (type === 'success') {
-                statusDiv.style.backgroundColor = '#def7ec';
-                statusDiv.style.color = '#03543f';
-            } else {
-                statusDiv.style.backgroundColor = '#e1effe';
-                statusDiv.style.color = '#1e429f';
-            }
-        }
-
-        // --- HD COMPRESSOR (Better Quality) ---
-        function compressImage(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = (event) => {
-                    const img = new Image();
-                    img.src = event.target.result;
-                    img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        
-                        // INCREASED from 500 to 800 (Sharper on laptops)
-                        const MAX_WIDTH = 800; 
-                        const scaleSize = MAX_WIDTH / img.width;
-                        canvas.width = MAX_WIDTH;
-                        canvas.height = img.height * scaleSize;
-
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                        
-                        // INCREASED Quality from 0.6 to 0.8 (Much less grainy)
-                        const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-                        resolve(dataUrl);
-                    };
-                };
-                reader.onerror = (error) => reject(error);
-            });
-        }
-
-        onAuthStateChanged(auth, user => {
-            if (user) {
-                currentUser = user;
-            } else {
-                showStatus("⚠️ Please Sign In First", "error");
-                submitBtn.disabled = true;
-            }
-        });
-
-        itemForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            if (!currentUser) return showStatus("You must be signed in!", "error");
-
-            const fileInput = document.getElementById('image');
-            if (fileInput.files.length === 0) return showStatus("Please select an image!", "error");
-
-            try {
-                submitBtn.disabled = true;
-                submitBtn.innerText = "Compressing & Saving...";
-                showStatus("Compressing image (HD)... please wait.", "loading");
-
-                // 1. Compress
-                const realImage64 = await compressImage(fileInput.files[0]);
-                
-                // Safety Check: If image is somehow > 900KB, warn the user
-                if (realImage64.length > 950000) {
-                     throw new Error("Image is too complex! Please pick a simpler photo.");
-                }
-
-                // 2. Upload
-                await addDoc(collection(db, "items"), {
-                    item_name: document.getElementById('item_name').value,
-                    description: document.getElementById('description').value,
-                    category: document.getElementById('category').value,
-                    type: document.getElementById('item_type').value,
-                    location: document.getElementById('location').value,
-                    imageURL: realImage64, 
-                    owner: currentUser.uid,
-                    timestamp: serverTimestamp()
-                });
-
-                showStatus("✅ Saved!", "success");
-                itemForm.reset();
-                submitBtn.disabled = false;
-                submitBtn.innerText = "Submit Report";
-
-            } catch (err) {
-                console.error(err);
-                showStatus("Error: " + err.message, "error");
-                submitBtn.disabled = false;
-                submitBtn.innerText = "Try Again";
-            }
-        });
-    </script>
-  </body>
-</html>
-
- -->
-
 
 
 
@@ -342,7 +21,7 @@
 
 
 
- <!doctype html>
+ <!-- <!doctype html>
 <html>
   <head>
     <meta charset="utf-8" />
@@ -505,4 +184,372 @@
   </body>
 </html>
 
+ -->
 
+
+
+
+
+
+
+
+
+
+
+
+ <!-- Designing code -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- <!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Report Item — Smart Lost & Found</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div class="container" style="max-width: 600px;">
+      <header><h2>Report an Item</h2></header>
+
+      <div id="statusLog" style="display:none; padding: 15px; margin-bottom: 20px; border-radius: 12px; font-weight: bold; text-align: center;"></div>
+
+      <form id="itemForm" style="background: white; padding: 30px; border-radius: 16px; border: 1px solid var(--border); box-shadow: var(--shadow-md);">
+        
+        <label style="font-weight: 600; display: block; margin-bottom: 8px;">What is it?</label>
+        <input id="item_name" type="text" placeholder="Item name (e.g. Black USB drive)" required />
+        
+        <label style="font-weight: 600; display: block; margin-bottom: 8px;">Category</label>
+        <select id="category">
+          <option>Electronics</option>
+          <option>ID Card</option>
+          <option>Notebook</option>
+          <option>Accessory</option>
+          <option>Other</option>
+        </select>
+
+        <label style="font-weight: 600; display: block; margin-bottom: 8px;">Description</label>
+        <textarea id="description" placeholder="Details (color, scratches, brand name)..." rows="3"></textarea>
+
+        <div style="margin-bottom: 20px; background: #f0f9ff; padding: 15px; border-radius: 12px; border: 1px solid #bae6fd;">
+            <label style="font-weight: 700; color: #0369a1; display: block; margin-bottom: 8px;">Type of Report:</label>
+            <select id="item_type" style="margin-bottom: 0; border: 2px solid #0ea5e9;">
+                <option value="found">✅ Found Item (I found something)</option>
+                <option value="lost">📢 Lost Item (I lost something)</option>
+            </select>
+        </div>
+
+        <label style="font-weight: 600; display: block; margin-bottom: 8px;">Location</label>
+        <input id="location" type="text" placeholder="Where? (e.g. Library Table 4)" required />
+        
+        <label style="font-weight: 600; display: block; margin-bottom: 8px;">Contact Info</label>
+        <input id="contact_info" type="text" placeholder="Email or Phone Number" required />
+        
+        <label style="font-weight: 600; display: block; margin-bottom: 8px;">Upload Photo</label>
+        <input id="image" type="file" accept="image/*" required />
+
+        <button class="btn" type="submit" id="submitBtn" style="width: 100%; margin-top: 10px;">Submit Report</button>
+      </form>
+
+      <p style="text-align: center; margin-top: 20px;"><a href="index.html" style="color: var(--text-muted); text-decoration: none;">← Back to Home</a></p>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBHqbuwOBlJBix9SgLFqYSLqFlXs7Uqup8",
+            authDomain: "lost-and-found-17d0e.firebaseapp.com",
+            projectId: "lost-and-found-17d0e",
+            messagingSenderId: "746918449748",
+            appId: "1:746918449748:web:6de9b7b1a1a68ae91f13c1"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        let currentUser = null;
+
+        const statusDiv = document.getElementById('statusLog');
+        const submitBtn = document.getElementById('submitBtn');
+
+        function showStatus(msg, type) {
+            statusDiv.style.display = 'block';
+            statusDiv.textContent = msg;
+            statusDiv.style.backgroundColor = type === 'error' ? '#fde8e8' : (type === 'success' ? '#def7ec' : '#e1effe');
+            statusDiv.style.color = type === 'error' ? '#c53030' : (type === 'success' ? '#03543f' : '#1e429f');
+        }
+
+        function compressImage(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 800; 
+                        const scaleSize = MAX_WIDTH / img.width;
+                        canvas.width = MAX_WIDTH;
+                        canvas.height = img.height * scaleSize;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        resolve(canvas.toDataURL('image/jpeg', 0.8));
+                    };
+                };
+                reader.onerror = (error) => reject(error);
+            });
+        }
+
+        onAuthStateChanged(auth, user => {
+            if (user) currentUser = user;
+            else {
+                showStatus("⚠️ Please Sign In First", "error");
+                submitBtn.disabled = true;
+            }
+        });
+
+        document.getElementById('itemForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentUser) return showStatus("You must be signed in!", "error");
+
+            const fileInput = document.getElementById('image');
+            if (fileInput.files.length === 0) return showStatus("Please select an image!", "error");
+
+            try {
+                submitBtn.disabled = true;
+                submitBtn.innerText = "Processing...";
+                showStatus("Compressing & Saving...", "loading");
+
+                const realImage64 = await compressImage(fileInput.files[0]);
+
+                await addDoc(collection(db, "items"), {
+                    item_name: document.getElementById('item_name').value,
+                    description: document.getElementById('description').value,
+                    category: document.getElementById('category').value,
+                    type: document.getElementById('item_type').value,
+                    location: document.getElementById('location').value,
+                    contact_info: document.getElementById('contact_info').value,
+                    imageURL: realImage64, 
+                    owner: currentUser.uid,
+                    timestamp: serverTimestamp()
+                });
+
+                showStatus("✅ Report Saved Successfully!", "success");
+                document.getElementById('itemForm').reset();
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Submit Report";
+
+            } catch (err) {
+                console.error(err);
+                showStatus("Error: " + err.message, "error");
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Try Again";
+            }
+        });
+    </script>
+  </body>
+</html> -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Report Item — Smart Lost & Found</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div class="container" style="max-width: 600px;">
+      <header><h2>Report an Item</h2></header>
+
+      <div id="statusLog" style="display:none; padding: 15px; margin-bottom: 20px; border-radius: 12px; font-weight: bold; text-align: center;"></div>
+
+      <form id="itemForm" style="background: white; padding: 30px; border-radius: 16px; border: 1px solid var(--border); box-shadow: var(--shadow-md);">
+        
+        <label style="font-weight: 600; display: block; margin-bottom: 8px;">What is it?</label>
+        <input id="item_name" type="text" placeholder="Item name (e.g. Black USB drive)" required />
+        
+        <label style="font-weight: 600; display: block; margin-bottom: 8px;">Category</label>
+        <select id="category">
+          <option>Electronics</option>
+          <option>ID Card</option>
+          <option>Notebook</option>
+          <option>Accessory</option>
+          <option>Other</option>
+        </select>
+
+        <label style="font-weight: 600; display: block; margin-bottom: 8px;">Description</label>
+        <textarea id="description" placeholder="Details (color, scratches, brand name)..." rows="3"></textarea>
+
+        <div style="margin-bottom: 20px; background: #f0f9ff; padding: 15px; border-radius: 12px; border: 1px solid #bae6fd;">
+            <label style="font-weight: 700; color: #0369a1; display: block; margin-bottom: 8px;">Type of Report:</label>
+            <select id="item_type" style="margin-bottom: 0; border: 2px solid #0ea5e9;">
+                <option value="found">✅ Found Item (I found something)</option>
+                <option value="lost">📢 Lost Item (I lost something)</option>
+            </select>
+        </div>
+
+        <label style="font-weight: 600; display: block; margin-bottom: 8px;">Location</label>
+        <input id="location" type="text" placeholder="Where? (e.g. Library Table 4)" required />
+        
+        <label style="font-weight: 600; display: block; margin-bottom: 8px;">Contact Info</label>
+        <input id="contact_info" type="text" placeholder="Email or Phone Number" required />
+        
+        <label style="font-weight: 600; display: block; margin-bottom: 8px;">Upload Photo</label>
+        <input id="image" type="file" accept="image/*" required />
+
+        <button class="btn" type="submit" id="submitBtn" style="width: 100%; margin-top: 10px;">Submit Report</button>
+      </form>
+
+      <p style="text-align: center; margin-top: 20px;"><a href="index.html" style="color: var(--text-muted); text-decoration: none;">← Back to Home</a></p>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBHqbuwOBlJBix9SgLFqYSLqFlXs7Uqup8",
+            authDomain: "lost-and-found-17d0e.firebaseapp.com",
+            projectId: "lost-and-found-17d0e",
+            messagingSenderId: "746918449748",
+            appId: "1:746918449748:web:6de9b7b1a1a68ae91f13c1"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        let currentUser = null;
+
+        const statusDiv = document.getElementById('statusLog');
+        const submitBtn = document.getElementById('submitBtn');
+
+        function showStatus(msg, type) {
+            statusDiv.style.display = 'block';
+            statusDiv.textContent = msg;
+            statusDiv.style.backgroundColor = type === 'error' ? '#fde8e8' : (type === 'success' ? '#def7ec' : '#e1effe');
+            statusDiv.style.color = type === 'error' ? '#c53030' : (type === 'success' ? '#03543f' : '#1e429f');
+        }
+
+        // Image Compression
+        function compressImage(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 800; 
+                        const scaleSize = MAX_WIDTH / img.width;
+                        canvas.width = MAX_WIDTH;
+                        canvas.height = img.height * scaleSize;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        resolve(canvas.toDataURL('image/jpeg', 0.8));
+                    };
+                };
+                reader.onerror = (error) => reject(error);
+            });
+        }
+
+        onAuthStateChanged(auth, user => {
+            if (user) currentUser = user;
+            else {
+                showStatus("⚠️ Please Sign In First", "error");
+                submitBtn.disabled = true;
+            }
+        });
+
+        document.getElementById('itemForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentUser) return showStatus("You must be signed in!", "error");
+            const fileInput = document.getElementById('image');
+            if (fileInput.files.length === 0) return showStatus("Please select an image!", "error");
+
+            try {
+                submitBtn.disabled = true;
+                submitBtn.innerText = "Processing...";
+                showStatus("Compressing & Saving...", "loading");
+
+                const realImage64 = await compressImage(fileInput.files[0]);
+
+                await addDoc(collection(db, "items"), {
+                    item_name: document.getElementById('item_name').value,
+                    description: document.getElementById('description').value,
+                    category: document.getElementById('category').value,
+                    type: document.getElementById('item_type').value,
+                    location: document.getElementById('location').value,
+                    contact_info: document.getElementById('contact_info').value,
+                    imageURL: realImage64, 
+                    owner: currentUser.uid,
+                    timestamp: serverTimestamp()
+                });
+
+                showStatus("✅ Report Saved Successfully!", "success");
+                document.getElementById('itemForm').reset();
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Submit Report";
+            } catch (err) {
+                console.error(err);
+                showStatus("Error: " + err.message, "error");
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Try Again";
+            }
+        });
+    </script>
+  </body>
+</html>

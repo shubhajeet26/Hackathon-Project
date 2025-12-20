@@ -1,3 +1,16 @@
+
+<!-- Added the smart search feature -->
+
+
+
+
+
+
+
+
+
+
+
 <!-- <!doctype html>
 <html>
   <head>
@@ -6,31 +19,39 @@
     <link rel="stylesheet" href="styles.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-      /* Simple Card Style */
+      .filter-container {
+        display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;
+        background: #fff; padding: 15px; border-radius: 12px; border: 1px solid #e5e7eb;
+      }
+      .filter-select {
+        padding: 10px; border: 1px solid #d1d5db; border-radius: 8px;
+        background-color: white; font-size: 0.9rem; color: #374151; cursor: pointer; flex: 1;
+      }
+      .search-input {
+        flex: 2; min-width: 200px; padding: 10px; border: 1px solid #d1d5db; 
+        border-radius: 8px; font-size: 0.9rem;
+      }
+
       .item-card {
-        background: white;
-        border: 1px solid #e5e7eb;
-        border-radius: 12px;
-        padding: 15px;
-        margin-bottom: 15px;
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        background: white; border: 1px solid #e5e7eb; border-radius: 12px;
+        padding: 15px; margin-bottom: 15px; display: flex; align-items: center; gap: 15px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05); position: relative;
       }
-      .item-img {
-        width: 80px;
-        height: 80px;
-        object-fit: cover;
-        border-radius: 8px;
-        background: #f3f4f6;
-      }
+      .item-img { width: 100px; height: 100px; object-fit: cover; border-radius: 8px; background: #f3f4f6; }
+      .item-info { flex: 1; }
       .item-info h3 { margin: 0 0 5px 0; color: #1f2937; }
       .item-info p { margin: 0; color: #6b7280; font-size: 0.9rem; }
-      .tag {
-        background: #fde8e8; color: #9b1c1c; /* RED for Lost items */
-        padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600;
-        display: inline-block; margin-bottom: 5px;
+      
+      .category-badge {
+        background-color: #fde8e8; color: #9b1c1c; padding: 3px 8px; border-radius: 9999px; 
+        font-size: 0.7rem; font-weight: 700; text-transform: uppercase; display: inline-block; margin-bottom: 5px;
+      }
+
+      .contact-text { color: #c53030; font-weight: 600; margin-top: 5px; }
+      .time-ago { font-size: 0.8rem; color: #9ca3af; float: right; }
+      .delete-btn-small {
+        background: #ef4444; color: white; border: none; padding: 5px 10px;
+        border-radius: 5px; cursor: pointer; font-size: 0.8rem; margin-top: 5px;
       }
     </style>
   </head>
@@ -41,6 +62,24 @@
         <p style="color: #666;">Help these people find their items!</p>
       </header>
 
+      <div class="filter-container">
+        <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search lost items..." />
+        
+        <select id="categoryFilter" class="filter-select">
+          <option value="All">All Categories</option>
+          <option value="Electronics">Electronics</option>
+          <option value="ID Card">ID Card</option>
+          <option value="Notebook">Notebook</option>
+          <option value="Accessory">Accessory</option>
+          <option value="Other">Other</option>
+        </select>
+        
+        <select id="sortFilter" class="filter-select">
+          <option value="newest">Newest First</option>
+          <option value="oldest">Oldest First</option>
+        </select>
+      </div>
+
       <div id="loading" style="text-align: center; color: #666; margin-top: 20px;">Loading lost items...</div>
       <div id="itemsList"></div>
 
@@ -49,7 +88,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-        import { getFirestore, collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+        import { getFirestore, collection, query, where, getDocs, orderBy, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBHqbuwOBlJBix9SgLFqYSLqFlXs7Uqup8",
@@ -60,25 +100,93 @@
         };
 
         const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
         const db = getFirestore(app);
+        let currentUser = null;
+
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            loadItems();
+        });
+
+        function timeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+            let interval = seconds / 31536000;
+            if (interval > 1) return Math.floor(interval) + " years ago";
+            interval = seconds / 2592000;
+            if (interval > 1) return Math.floor(interval) + " months ago";
+            interval = seconds / 86400;
+            if (interval > 1) return Math.floor(interval) + " days ago";
+            interval = seconds / 3600;
+            if (interval > 1) return Math.floor(interval) + " hours ago";
+            interval = seconds / 60;
+            if (interval > 1) return Math.floor(interval) + " mins ago";
+            return "Just now";
+        }
+
+        window.deleteItem = async (itemId) => {
+            if (confirm("Remove this item?")) {
+                try {
+                    await deleteDoc(doc(db, "items", itemId));
+                    alert("Removed!");
+                    location.reload(); 
+                } catch (error) { alert("Error: " + error.message); }
+            }
+        };
+
+        // --- SMART SEARCH & FILTER LOGIC ---
+        function applyFilters() {
+            // 1. Get Text & Split
+            const rawText = document.getElementById('searchInput').value.toLowerCase().trim();
+            const searchTerms = rawText.split(/\s+/); 
+
+            const catFilter = document.getElementById('categoryFilter').value;
+            const sortFilter = document.getElementById('sortFilter').value;
+            const listDiv = document.getElementById('itemsList');
+            const items = Array.from(listDiv.children);
+
+            items.forEach(item => {
+                const itemName = item.getAttribute('data-name').toLowerCase();
+                const itemCat = item.getAttribute('data-category');
+
+                // 2. Smart Check: Match EVERY word
+                const matchesSearch = (rawText === "") || searchTerms.every(term => itemName.includes(term));
+                
+                const matchesCat = (catFilter === 'All' || itemCat === catFilter);
+
+                if (matchesSearch && matchesCat) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            // 3. Sort
+            items.sort((a, b) => {
+                const timeA = parseInt(a.getAttribute('data-time'));
+                const timeB = parseInt(b.getAttribute('data-time'));
+                return sortFilter === 'newest' ? timeB - timeA : timeA - timeB;
+            });
+
+            items.forEach(item => listDiv.appendChild(item));
+        }
+
+        document.getElementById('searchInput').addEventListener('keyup', applyFilters);
+        document.getElementById('categoryFilter').addEventListener('change', applyFilters);
+        document.getElementById('sortFilter').addEventListener('change', applyFilters);
+
 
         async function loadItems() {
             const listDiv = document.getElementById('itemsList');
             const loadingDiv = document.getElementById('loading');
 
             try {
-                // QUERY: Show items where type == "lost"
-                const q = query(
-                    collection(db, "items"), 
-                    where("type", "==", "lost"), 
-                    orderBy("timestamp", "desc")
-                );
-
+                const q = query(collection(db, "items"), where("type", "==", "lost"), orderBy("timestamp", "desc"));
                 const querySnapshot = await getDocs(q);
                 loadingDiv.style.display = 'none';
 
                 if (querySnapshot.empty) {
-                    listDiv.innerHTML = '<p style="text-align:center; color:#888;">No lost items reported (Good news!).</p>';
+                    listDiv.innerHTML = '<p style="text-align:center; color:#888;">No lost items reported.</p>';
                     return;
                 }
 
@@ -87,13 +195,38 @@
                     const data = doc.data();
                     const itemDiv = document.createElement('div');
                     itemDiv.className = 'item-card';
+                    
+                    // SMART ICONS
+                    let icon = "📦";
+                    if (data.category === "Electronics") icon = "💻";
+                    if (data.category === "ID Card") icon = "🪪";
+                    if (data.category === "Notebook") icon = "📚";
+                    if (data.category === "Accessory") icon = "🕶️";
+
+                    // STORE DATA
+                    itemDiv.setAttribute('data-name', data.item_name + " " + data.description);
+                    itemDiv.setAttribute('data-category', data.category);
+                    const timeNum = data.timestamp ? data.timestamp.seconds : 0;
+                    itemDiv.setAttribute('data-time', timeNum);
+
+                    const contact = data.contact_info || "Not Provided";
+                    let timeString = data.timestamp ? timeAgo(data.timestamp.toDate()) : "Unknown";
+
+                    let deleteBtnHTML = "";
+                    if (currentUser && data.owner === currentUser.uid) {
+                        deleteBtnHTML = `<button onclick="window.deleteItem('${doc.id}')" class="delete-btn-small">🗑️ Mark Found</button>`;
+                    }
+
                     itemDiv.innerHTML = `
                         <img src="${data.imageURL}" class="item-img" alt="Item Image" onerror="this.src='https://placehold.co/100?text=No+Img'">
                         <div class="item-info">
-                            <span class="tag">LOST</span>
+                            <span class="time-ago">${timeString}</span>
+                            <span class="category-badge">${icon} LOST</span>
                             <h3>${data.item_name}</h3>
                             <p><strong>Where:</strong> ${data.location}</p>
                             <p><strong>Desc:</strong> ${data.description}</p>
+                            <p class="contact-text">📞 Contact: ${contact}</p>
+                            ${deleteBtnHTML}
                         </div>
                     `;
                     listDiv.appendChild(itemDiv);
@@ -101,11 +234,9 @@
 
             } catch (error) {
                 console.error(error);
-                loadingDiv.innerText = "Error loading items. Check console.";
+                loadingDiv.innerText = "Error loading items.";
             }
         }
-
-        loadItems();
     </script>
   </body>
 </html> -->
@@ -128,7 +259,241 @@
 
 
 
-<!-- Adding Contact Info Code -->
+
+
+
+
+
+
+
+
+<!-- designing code -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- <!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Lost Items — Smart Lost & Found</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+      .item-card {
+        background: white; border: 1px solid #e5e7eb; border-radius: 12px;
+        padding: 15px; margin-bottom: 15px; display: flex; align-items: center; gap: 15px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05); position: relative;
+      }
+      .item-img { width: 100px; height: 100px; object-fit: cover; border-radius: 8px; background: #f3f4f6; }
+      .item-info { flex: 1; }
+      .category-badge {
+        background-color: #fde8e8; color: #9b1c1c; padding: 3px 8px; border-radius: 9999px; 
+        font-size: 0.7rem; font-weight: 700; text-transform: uppercase; display: inline-block; margin-bottom: 5px;
+      }
+      .contact-text { color: #c53030; font-weight: 600; margin-top: 5px; }
+      .time-ago { font-size: 0.8rem; color: #9ca3af; float: right; }
+      .delete-btn-small {
+        background: #ef4444; color: white; border: none; padding: 5px 10px;
+        border-radius: 5px; cursor: pointer; font-size: 0.8rem; margin-top: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h2 style="color: #c53030;">Recent Lost Reports</h2>
+        <p style="color: #666;">Help these people find their items!</p>
+      </header>
+
+      <div class="filter-container">
+        <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search lost items..." />
+        <select id="categoryFilter" class="filter-select">
+          <option value="All">All Categories</option>
+          <option value="Electronics">Electronics</option>
+          <option value="ID Card">ID Card</option>
+          <option value="Notebook">Notebook</option>
+          <option value="Accessory">Accessory</option>
+          <option value="Other">Other</option>
+        </select>
+        <select id="sortFilter" class="filter-select">
+          <option value="newest">Newest First</option>
+          <option value="oldest">Oldest First</option>
+        </select>
+      </div>
+
+      <div id="loading" style="text-align: center; color: #666; margin-top: 20px;">Loading lost items...</div>
+      <div id="itemsList"></div>
+
+      <p><a href="index.html" class="btn" style="background-color: var(--text-muted); margin-top: 20px;">Back to Home</a></p>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+        import { getFirestore, collection, query, where, getDocs, orderBy, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBHqbuwOBlJBix9SgLFqYSLqFlXs7Uqup8",
+            authDomain: "lost-and-found-17d0e.firebaseapp.com",
+            projectId: "lost-and-found-17d0e",
+            messagingSenderId: "746918449748",
+            appId: "1:746918449748:web:6de9b7b1a1a68ae91f13c1"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        let currentUser = null;
+
+        onAuthStateChanged(auth, (user) => { currentUser = user; loadItems(); });
+
+        function timeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+            let interval = seconds / 31536000;
+            if (interval > 1) return Math.floor(interval) + " years ago";
+            interval = seconds / 2592000;
+            if (interval > 1) return Math.floor(interval) + " months ago";
+            interval = seconds / 86400;
+            if (interval > 1) return Math.floor(interval) + " days ago";
+            interval = seconds / 3600;
+            if (interval > 1) return Math.floor(interval) + " hours ago";
+            interval = seconds / 60;
+            if (interval > 1) return Math.floor(interval) + " mins ago";
+            return "Just now";
+        }
+
+        window.deleteItem = async (itemId) => {
+            if (confirm("Have you found this item? Remove it?")) {
+                try {
+                    await deleteDoc(doc(db, "items", itemId));
+                    alert("Item removed successfully!");
+                    location.reload(); 
+                } catch (error) { alert("Error: " + error.message); }
+            }
+        };
+
+        function applyFilters() {
+            const rawText = document.getElementById('searchInput').value.toLowerCase().trim();
+            const searchTerms = rawText.split(/\s+/);
+            const catFilter = document.getElementById('categoryFilter').value;
+            const sortFilter = document.getElementById('sortFilter').value;
+            const listDiv = document.getElementById('itemsList');
+            const items = Array.from(listDiv.children);
+
+            items.forEach(item => {
+                const itemName = item.getAttribute('data-name').toLowerCase();
+                const itemCat = item.getAttribute('data-category');
+                const matchesSearch = (rawText === "") || searchTerms.every(term => itemName.includes(term));
+                const matchesCat = (catFilter === 'All' || itemCat === catFilter);
+                item.style.display = (matchesSearch && matchesCat) ? 'flex' : 'none';
+            });
+
+            items.sort((a, b) => {
+                const timeA = parseInt(a.getAttribute('data-time'));
+                const timeB = parseInt(b.getAttribute('data-time'));
+                return sortFilter === 'newest' ? timeB - timeA : timeA - timeB;
+            });
+
+            items.forEach(item => listDiv.appendChild(item));
+        }
+
+        document.getElementById('searchInput').addEventListener('keyup', applyFilters);
+        document.getElementById('categoryFilter').addEventListener('change', applyFilters);
+        document.getElementById('sortFilter').addEventListener('change', applyFilters);
+
+        async function loadItems() {
+            const listDiv = document.getElementById('itemsList');
+            const loadingDiv = document.getElementById('loading');
+            try {
+                const q = query(collection(db, "items"), where("type", "==", "lost"), orderBy("timestamp", "desc"));
+                const querySnapshot = await getDocs(q);
+                loadingDiv.style.display = 'none';
+
+                if (querySnapshot.empty) { listDiv.innerHTML = '<p style="text-align:center; color:#888;">No lost items reported.</p>'; return; }
+
+                listDiv.innerHTML = '';
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'item-card';
+                    
+                    let icon = "📦";
+                    if (data.category === "Electronics") icon = "💻";
+                    if (data.category === "ID Card") icon = "🪪";
+                    if (data.category === "Notebook") icon = "📚";
+                    if (data.category === "Accessory") icon = "🕶️";
+
+                    itemDiv.setAttribute('data-name', data.item_name + " " + data.description);
+                    itemDiv.setAttribute('data-category', data.category);
+                    itemDiv.setAttribute('data-time', data.timestamp ? data.timestamp.seconds : 0);
+
+                    const contact = data.contact_info || "Not Provided";
+                    let timeString = data.timestamp ? timeAgo(data.timestamp.toDate()) : "Unknown";
+
+                    let deleteBtnHTML = "";
+                    if (currentUser && data.owner === currentUser.uid) {
+                        deleteBtnHTML = `<button onclick="window.deleteItem('${doc.id}')" class="delete-btn-small">🗑️ Mark Found</button>`;
+                    }
+
+                    itemDiv.innerHTML = `
+                        <img src="${data.imageURL}" class="item-img" alt="Item Image" onerror="this.src='https://placehold.co/100?text=No+Img'">
+                        <div class="item-info">
+                            <span class="time-ago">${timeString}</span>
+                            <span class="category-badge">${icon} LOST</span>
+                            <h3>${data.item_name}</h3>
+                            <p><strong>Where:</strong> ${data.location}</p>
+                            <p><strong>Desc:</strong> ${data.description}</p>
+                            <p class="contact-text">📞 Contact: ${contact}</p>
+                            ${deleteBtnHTML}
+                        </div>
+                    `;
+                    listDiv.appendChild(itemDiv);
+                });
+            } catch (error) { console.error(error); loadingDiv.innerText = "Error loading items."; }
+        }
+    </script>
+  </body>
+</html> -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -147,36 +512,22 @@
     <link rel="stylesheet" href="styles.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-      /* Simple Card Style */
       .item-card {
-        background: white;
-        border: 1px solid #e5e7eb;
-        border-radius: 12px;
-        padding: 15px;
-        margin-bottom: 15px;
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        background: white; border: 1px solid #e5e7eb; border-radius: 12px;
+        padding: 15px; margin-bottom: 15px; display: flex; align-items: center; gap: 15px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05); position: relative;
       }
-      .item-img {
-        width: 100px;
-        height: 100px;
-        object-fit: cover;
-        border-radius: 8px;
-        background: #f3f4f6;
+      .item-img { width: 100px; height: 100px; object-fit: cover; border-radius: 8px; background: #f3f4f6; }
+      .item-info { flex: 1; }
+      .category-badge {
+        background-color: #fde8e8; color: #9b1c1c; padding: 3px 8px; border-radius: 9999px; 
+        font-size: 0.7rem; font-weight: 700; text-transform: uppercase; display: inline-block; margin-bottom: 5px;
       }
-      .item-info h3 { margin: 0 0 5px 0; color: #1f2937; }
-      .item-info p { margin: 0; color: #6b7280; font-size: 0.9rem; }
-      .tag {
-        background: #fde8e8; color: #9b1c1c; /* RED for Lost items */
-        padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600;
-        display: inline-block; margin-bottom: 5px;
-      }
-      .contact-text {
-        color: #c53030;
-        font-weight: 600;
-        margin-top: 5px;
+      .contact-text { color: #c53030; font-weight: 600; margin-top: 5px; }
+      .time-ago { font-size: 0.8rem; color: #9ca3af; float: right; }
+      .delete-btn-small {
+        background: #ef4444; color: white; border: none; padding: 5px 10px;
+        border-radius: 5px; cursor: pointer; font-size: 0.8rem; margin-top: 5px;
       }
     </style>
   </head>
@@ -187,6 +538,22 @@
         <p style="color: #666;">Help these people find their items!</p>
       </header>
 
+      <div class="filter-container">
+        <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search lost items..." />
+        <select id="categoryFilter" class="filter-select">
+          <option value="All">All Categories</option>
+          <option value="Electronics">Electronics</option>
+          <option value="ID Card">ID Card</option>
+          <option value="Notebook">Notebook</option>
+          <option value="Accessory">Accessory</option>
+          <option value="Other">Other</option>
+        </select>
+        <select id="sortFilter" class="filter-select">
+          <option value="newest">Newest First</option>
+          <option value="oldest">Oldest First</option>
+        </select>
+      </div>
+
       <div id="loading" style="text-align: center; color: #666; margin-top: 20px;">Loading lost items...</div>
       <div id="itemsList"></div>
 
@@ -195,7 +562,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-        import { getFirestore, collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+        import { getFirestore, collection, query, where, getDocs, orderBy, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBHqbuwOBlJBix9SgLFqYSLqFlXs7Uqup8",
@@ -206,27 +574,75 @@
         };
 
         const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
         const db = getFirestore(app);
+        let currentUser = null;
+
+        onAuthStateChanged(auth, (user) => { currentUser = user; loadItems(); });
+
+        function timeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+            let interval = seconds / 31536000;
+            if (interval > 1) return Math.floor(interval) + " years ago";
+            interval = seconds / 2592000;
+            if (interval > 1) return Math.floor(interval) + " months ago";
+            interval = seconds / 86400;
+            if (interval > 1) return Math.floor(interval) + " days ago";
+            interval = seconds / 3600;
+            if (interval > 1) return Math.floor(interval) + " hours ago";
+            interval = seconds / 60;
+            if (interval > 1) return Math.floor(interval) + " mins ago";
+            return "Just now";
+        }
+
+        window.deleteItem = async (itemId) => {
+            if (confirm("Have you found this item? Remove it?")) {
+                try {
+                    await deleteDoc(doc(db, "items", itemId));
+                    alert("Item removed successfully!");
+                    location.reload(); 
+                } catch (error) { alert("Error: " + error.message); }
+            }
+        };
+
+        function applyFilters() {
+            const rawText = document.getElementById('searchInput').value.toLowerCase().trim();
+            const searchTerms = rawText.split(/\s+/);
+            const catFilter = document.getElementById('categoryFilter').value;
+            const sortFilter = document.getElementById('sortFilter').value;
+            const listDiv = document.getElementById('itemsList');
+            const items = Array.from(listDiv.children);
+
+            items.forEach(item => {
+                const itemName = item.getAttribute('data-name').toLowerCase();
+                const itemCat = item.getAttribute('data-category');
+                const matchesSearch = (rawText === "") || searchTerms.every(term => itemName.includes(term));
+                const matchesCat = (catFilter === 'All' || itemCat === catFilter);
+                item.style.display = (matchesSearch && matchesCat) ? 'flex' : 'none';
+            });
+
+            items.sort((a, b) => {
+                const timeA = parseInt(a.getAttribute('data-time'));
+                const timeB = parseInt(b.getAttribute('data-time'));
+                return sortFilter === 'newest' ? timeB - timeA : timeA - timeB;
+            });
+
+            items.forEach(item => listDiv.appendChild(item));
+        }
+
+        document.getElementById('searchInput').addEventListener('keyup', applyFilters);
+        document.getElementById('categoryFilter').addEventListener('change', applyFilters);
+        document.getElementById('sortFilter').addEventListener('change', applyFilters);
 
         async function loadItems() {
             const listDiv = document.getElementById('itemsList');
             const loadingDiv = document.getElementById('loading');
-
             try {
-                // QUERY: Show items where type == "lost"
-                const q = query(
-                    collection(db, "items"), 
-                    where("type", "==", "lost"), 
-                    orderBy("timestamp", "desc")
-                );
-
+                const q = query(collection(db, "items"), where("type", "==", "lost"), orderBy("timestamp", "desc"));
                 const querySnapshot = await getDocs(q);
                 loadingDiv.style.display = 'none';
 
-                if (querySnapshot.empty) {
-                    listDiv.innerHTML = '<p style="text-align:center; color:#888;">No lost items reported (Good news!).</p>';
-                    return;
-                }
+                if (querySnapshot.empty) { listDiv.innerHTML = '<p style="text-align:center; color:#888;">No lost items reported.</p>'; return; }
 
                 listDiv.innerHTML = '';
                 querySnapshot.forEach((doc) => {
@@ -234,29 +650,40 @@
                     const itemDiv = document.createElement('div');
                     itemDiv.className = 'item-card';
                     
-                    // Display contact (or N/A for old items)
+                    let icon = "📦";
+                    if (data.category === "Electronics") icon = "💻";
+                    if (data.category === "ID Card") icon = "🪪";
+                    if (data.category === "Notebook") icon = "📚";
+                    if (data.category === "Accessory") icon = "🕶️";
+
+                    itemDiv.setAttribute('data-name', data.item_name + " " + data.description);
+                    itemDiv.setAttribute('data-category', data.category);
+                    itemDiv.setAttribute('data-time', data.timestamp ? data.timestamp.seconds : 0);
+
                     const contact = data.contact_info || "Not Provided";
+                    let timeString = data.timestamp ? timeAgo(data.timestamp.toDate()) : "Unknown";
+
+                    let deleteBtnHTML = "";
+                    if (currentUser && data.owner === currentUser.uid) {
+                        deleteBtnHTML = `<button onclick="window.deleteItem('${doc.id}')" class="delete-btn-small">🗑️ Mark Found</button>`;
+                    }
 
                     itemDiv.innerHTML = `
                         <img src="${data.imageURL}" class="item-img" alt="Item Image" onerror="this.src='https://placehold.co/100?text=No+Img'">
                         <div class="item-info">
-                            <span class="tag">LOST</span>
+                            <span class="time-ago">${timeString}</span>
+                            <span class="category-badge">${icon} LOST</span>
                             <h3>${data.item_name}</h3>
                             <p><strong>Where:</strong> ${data.location}</p>
                             <p><strong>Desc:</strong> ${data.description}</p>
                             <p class="contact-text">📞 Contact: ${contact}</p>
+                            ${deleteBtnHTML}
                         </div>
                     `;
                     listDiv.appendChild(itemDiv);
                 });
-
-            } catch (error) {
-                console.error(error);
-                loadingDiv.innerText = "Error loading items. Check console.";
-            }
+            } catch (error) { console.error(error); loadingDiv.innerText = "Error loading items."; }
         }
-
-        loadItems();
     </script>
   </body>
 </html>
